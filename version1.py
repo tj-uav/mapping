@@ -17,20 +17,27 @@ import os
 folder: must be a folder name
 debug: 0 = no debug; 1 = light debug; 2 = detailed debug
 '''
-def stitch(folder, debug = 0):
+def stitch(folder, debug = 0, range = None):
     print("\n----------------------\n")
     print("Run Start")
     images = []
     if debug > 0: print("Scanning Images in folder:",folder)
+    factor_of_descale = 10
+    counter = 0
     for filename in os.listdir(folder):
-        #Create full file path 
-        f = os.path.join(folder, filename)
-        # Skipping if it is a file
-        if not os.path.isfile(f):
-            continue
-        #Save file in images
-        images.append(cv2.imread(f))
-        if debug == 2: print(f, "Loaded")
+        if range == None or (counter >= range[0] and counter < range[1]):
+            #Create full file path 
+            f = os.path.join(folder, filename)
+            # Skipping if it is a file
+            if not os.path.isfile(f):
+                continue
+            #Save file in images
+            currimg = cv2.imread(f)
+            #currimg = cv2.resize(currimg, (int(currimg.shape[1] / factor_of_descale), int(currimg.shape[0]  / factor_of_descale)), interpolation=cv2.INTER_LINEAR)
+            #current_image = current_image.astype(np.byte)
+            images.append(currimg)
+            if debug == 2: print(f, "Loaded")
+        counter += 1
     if debug > 0: print("Done Scanning")
 
     #Finds features and adds details related
@@ -82,7 +89,8 @@ def stitch(folder, debug = 0):
     #if debug > 0: print("Matches Found")
 
     print("Stitching...")
-    stitcher = cv2.SIFT_create(0)
+    cv2.ocl.setUseOpenCL(False)
+    stitcher = cv2.Stitcher.create(0)
     status, output = stitcher.stitch(images)
 
     possibleStatus = [
@@ -95,6 +103,7 @@ def stitch(folder, debug = 0):
     if(status == 0):
         cv2.imshow('1',output) 
         cv2.waitKey(0)
+        cv2.imwrite('output_panorama.jpg', output)
     else:
         print("Error: ", possibleStatus[status])
 
@@ -104,4 +113,4 @@ def stitch(folder, debug = 0):
 
 
 
-stitch('C:\\Users\jaspe\Documents\Github_Local\mapping-tjuav\ImgSampleC', debug = 2)
+stitch('C:\\Users\jaspe\Documents\Github_Local\mapping-tjuav\ImgSampleB', debug = 2, range = (0,4))
