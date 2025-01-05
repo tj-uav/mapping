@@ -17,12 +17,12 @@ import os
 folder: must be a folder name
 debug: 0 = no debug; 1 = light debug; 2 = detailed debug
 '''
-def stitch(folder, debug = 0, range = None):
+def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '.jpg'):
     print("\n----------------------\n")
     print("Run Start")
     images = []
     if debug > 0: print("Scanning Images in folder:",folder)
-    factor_of_descale = 10
+    factor_of_descale = 1
     counter = 0
     for filename in os.listdir(folder):
         if range == None or (counter >= range[0] and counter < range[1]):
@@ -40,6 +40,7 @@ def stitch(folder, debug = 0, range = None):
         counter += 1
     if debug > 0: print("Done Scanning")
 
+    '''
     #Finds features and adds details related
     #Uses SIFT algorithm (Scale-Invariant Feature Transform)
     #Also could try cv2.ORB_create()
@@ -61,6 +62,7 @@ def stitch(folder, debug = 0, range = None):
         imagecounter += 1
 
     if debug > 0: print("Keypoint and Descriptors loaded")
+    '''
 
     #whether to put create or not is debated between sites
     #L1 or L2 is good with SIFT
@@ -89,8 +91,10 @@ def stitch(folder, debug = 0, range = None):
     #if debug > 0: print("Matches Found")
 
     print("Stitching...")
+    #Stitcher settings
     cv2.ocl.setUseOpenCL(False)
     stitcher = cv2.Stitcher.create(0)
+    cv2.Stitcher.setWaveCorrection(stitcher, False)
     status, output = stitcher.stitch(images)
 
     possibleStatus = [
@@ -101,16 +105,12 @@ def stitch(folder, debug = 0, range = None):
     ]
 
     if(status == 0):
-        cv2.imshow('1',output) 
-        cv2.waitKey(0)
-        cv2.imwrite('output_panorama.jpg', output)
+        #cv2.imshow('1',output) 
+        #cv2.waitKey(0)
+        cv2.imwrite(panorama_name + type, output)
     else:
         print("Error: ", possibleStatus[status])
 
     print("Run End")
 
-
-
-
-
-stitch('C:\\Users\jaspe\Documents\Github_Local\mapping-tjuav\ImgSampleB', debug = 2, range = (0,4))
+stitch('C:\\Users\jaspe\Documents\Github_Local\mapping-tjuav\ImgSampleF', debug = 2, range = (0, 20), type = '.png', panorama_name = 'FimgsALL')
