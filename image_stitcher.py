@@ -16,6 +16,9 @@ import os
 @params
 folder: must be a folder name
 debug: 0 = no debug; 1 = light debug; 2 = detailed debug
+range: Default will go through all of them. Can insert a tuple where first int inclusive last exclusive and 0 is first
+panorama_name: Final file name. By default is 'panorama'
+type: Final file type. By default is jpg
 '''
 def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '.jpg'):
     print("\n----------------------\n")
@@ -25,7 +28,7 @@ def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '
     factor_of_descale = 1
     counter = 0
     for filename in os.listdir(folder):
-        if range == None or (counter >= range[0] and counter < range[1]):
+        if range is None or range[0] <= counter < range[1]:
             #Create full file path 
             f = os.path.join(folder, filename)
             # Skipping if it is a file
@@ -101,7 +104,7 @@ def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '
         "OK",
         "ERR_NEED_MORE_IMGS",
         "ERR_HOMOGRAPHY_EST_FAIL",
-        "ERR_CAMERA_PARAMS_ADJUST_FAIL"
+        "ERR_CAMERA_PARAMS_ADJUST_FAIL",
     ]
 
     if(status == 0):
@@ -110,7 +113,6 @@ def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '
         cv2.imwrite(panorama_name + type, output)
     else:
         print("Error: ", possibleStatus[status])
+    return possibleStatus[status]
 
     print("Run End")
-
-stitch('C:\\Users\jaspe\Documents\Github_Local\mapping-tjuav\ImgSampleF', debug = 2, range = (0, 20), type = '.png', panorama_name = 'FimgsALL')
