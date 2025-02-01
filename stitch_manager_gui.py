@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 from image_stitcher import stitch
 import os
 from math import sqrt
+import time
 
 #Base Root Window
 root = tk.Tk()#Sets name of root/parent window
@@ -24,22 +25,43 @@ def selectFolder():#Uses filedialog to select a director (folder)
     labelSelection.config(text = "Selected Folder: " + selectedFolder)
 
 def runImageStitcher():
+    #Grab the folder
     folder = labelSelection.cget("text")
     listFolder = os.listdir(folder[17:])
-    imgGridWidth = int(sqrt(len(listFolder)))
-    if imgGridWidth % 2 != 0:
+    imgGridWidth = int(sqrt(len(listFolder)) * 0.75)#Make it a nice square-ish in the interface
+    if imgGridWidth % 2 != 0:#But even bc it looks nicer
         imgGridWidth += 1
-    loadImagesInGrid(folder[17:],imgGridWidth)
+    load_imgs_into_grid(folder[17:],imgGridWidth)#Load into interface
+    print('cool things happen now?')
+    time.sleep(2)
+    print('cool things happen now?')
+    #stitching_manager(listFolder, len(listFolder))
 
-def loadImagesInGrid(folder, imgGridWidth):
+def stitching_manager(folder, items):
+    for item in folder:
+        update_image(item, 'red')
+        time.sleep(1)
+
+def update_image(filename, new_color):
+    for label in root.grid_slaves():
+        if label.cget("text") == filename:
+            label.configure(bg = new_color)
+            return 'OK'
+    return 'ERR_IMG_NOT_FOUND'
+
+def load_imgs_into_grid(folder, imgGridWidth):
     counter = 0
     for file in os.listdir(folder):
-        img = Image.open(folder + "\\" + file)
-        img = img.resize((20, 20))
-        img = ImageTk.PhotoImage(img)
-        panel = tk.Label(root, image = img)
-        panel.image = img
-        panel.grid(row = int(counter / imgGridWidth) + 3, column = int(counter % imgGridWidth) + 1, pady = 2)
+        #Merci https://stackoverflow.com/questions/10133856/how-to-add-an-image-in-tkinter for getting this to work
+        # img = Image.open(folder + "\\" + file)
+        # imgSize = int(500/imgGridWidth)
+        # img = img.resize((imgSize, imgSize))
+        # img = ImageTk.PhotoImage(img)
+        # panel = tk.Label(root, image = img)
+        panel = tk.Label(root, text = file, background = 'gold')
+        #panel.image = img # Yeah idk y u need to double declare, but it works and its just visual so idc
+        #Put it into a grid
+        panel.grid(row = int(counter / imgGridWidth) + 3, column = int(counter % imgGridWidth) + 1, padx = 2, pady = 2)
         #print(str((counter % 10) + 3) + ", " + str(int(counter / 2)))
         counter += 1
 
@@ -66,7 +88,7 @@ labelSelection.grid(row = 1, column = 0, pady = 2)
 buttonRun = tk.Button(root, text = 'RUN IMAGE STITCHING', width = 25, command = runImageStitcher)
 buttonRun.grid(row = 2, column = 0, pady = 2)
 
-root.mainloop()
+#root.mainloop()
 
 
 
