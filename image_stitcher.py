@@ -19,8 +19,9 @@ debug: 0 = no debug; 1 = light debug; 2 = detailed debug
 range: Default will go through all of them. Can insert a tuple where first int inclusive last exclusive and 0 is first
 panorama_name: Final file name. By default is 'panorama'
 type: Final file type. By default is jpg
+path: Default is empty. If you want to save it in a different folder, put the folder name here
 '''
-def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '.jpg'):
+def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '.jpg', path = ''):
     print("\n----------------------\n")
     print("Run Start")
     images = []
@@ -110,9 +111,10 @@ def stitch(folder, debug = 0, range = None, panorama_name = 'panorama', type = '
     if(status == 0):
         #cv2.imshow('1',output) 
         #cv2.waitKey(0)
-        cv2.imwrite(panorama_name + type, output)
+        cv2.imwrite(os.path.join(path, panorama_name + type), output)
     else:
         print("Error: ", possibleStatus[status])
+    print("Stitching Complete")
     return possibleStatus[status]
 
-    print("Run End")
+# stitch('ImgSampleA1_10', 2,range=(0, 5),panorama_name = 'Aimgs1_5', type = '.png', path='cache_overflow')
